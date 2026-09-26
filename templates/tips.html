@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>FinAI — AI Financial Tips</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"></head>
+<body>
+<header class="topbar"><a href="/" class="brand">Fin<span>AI</span></a><nav>
+<a href="/">Dashboard</a><a href="/loan-checker">Loan Checker</a><a href="/credit-analyzer">Credit Analyzer</a><a href="/emi-calculator">EMI Calculator</a><a href="/ai-tips">AI Tips</a>
+</nav></header>
+<main class="container"><section class="page-heading"><p class="eyebrow">MODULE 04 • AI</p><h1>🤖 AI Financial Tips</h1><p class="subtitle">Generate general financial planning tips based on monthly income and expenses.</p></section>
+<article class="card single-card"><div class="form-grid"><label>Monthly Income (₹)<input id="tipIncome" type="number" value="50000" min="0"></label><label>Monthly Expenses (₹)<input id="tipExpenses" type="number" value="30000" min="0"></label></div><button class="primary" id="tipsBtn">Generate Tips</button><div id="tipsResult" class="result hidden"></div></article>
+<div class="back-link"><a href="/">← Back to Dashboard</a></div></main>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script></body></html>

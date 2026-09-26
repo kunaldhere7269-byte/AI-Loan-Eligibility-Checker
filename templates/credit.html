@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>FinAI — Credit Analyzer</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"></head>
+<body>
+<header class="topbar"><a href="/" class="brand">Fin<span>AI</span></a><nav>
+<a href="/">Dashboard</a><a href="/loan-checker">Loan Checker</a><a href="/credit-analyzer">Credit Analyzer</a><a href="/emi-calculator">EMI Calculator</a><a href="/ai-tips">AI Tips</a>
+</nav></header>
+<main class="container"><section class="page-heading"><p class="eyebrow">MODULE 02 • ANALYSIS</p><h1>📊 Credit Score Analyzer</h1><p class="subtitle">Enter a credit score to see its broad category and risk band.</p></section>
+<article class="card single-card"><div class="inline-form"><input id="creditScore" type="number" min="300" max="900" placeholder="Enter score, e.g. 750"><button class="secondary" id="creditBtn">Analyze</button></div><div id="creditResult" class="result hidden"></div></article>
+<div class="back-link"><a href="/">← Back to Dashboard</a></div></main>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script></body></html>

@@ -1,0 +1,12 @@
+<!doctype html>
+<html lang="en">
+<head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>FinAI — EMI Calculator</title>
+<link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}"></head>
+<body>
+<header class="topbar"><a href="/" class="brand">Fin<span>AI</span></a><nav>
+<a href="/">Dashboard</a><a href="/loan-checker">Loan Checker</a><a href="/credit-analyzer">Credit Analyzer</a><a href="/emi-calculator">EMI Calculator</a><a href="/ai-tips">AI Tips</a>
+</nav></header>
+<main class="container"><section class="page-heading"><p class="eyebrow">MODULE 03 • CALCULATOR</p><h1>🧮 EMI Calculator</h1><p class="subtitle">Calculate monthly EMI, total interest and total repayment.</p></section>
+<article class="card single-card"><div class="form-grid"><label>Loan Amount (₹)<input id="emiAmount" type="number" value="500000" min="1"></label><label>Interest Rate (% p.a.)<input id="emiRate" type="number" value="10" min="0" step="0.1"></label><label>Tenure (years)<input id="emiYears" type="number" value="5" min="1" step="1"></label></div><button class="primary" id="emiBtn">Calculate EMI</button><div id="emiResult" class="result hidden"></div></article>
+<div class="back-link"><a href="/">← Back to Dashboard</a></div></main>
+<script src="{{ url_for('static', filename='js/app.js') }}"></script></body></html>
