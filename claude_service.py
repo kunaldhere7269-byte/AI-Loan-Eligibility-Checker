@@ -1,40 +1,88 @@
 import os
 import json
 import urllib.request
+import urllib.error
+
 
 def get_financial_tips(data):
     """
-    Optional Claude integration.
-    Add ANTHROPIC_API_KEY to the environment to enable live AI tips.
-    Without a key, the project returns safe demo tips so the app still works.
+    Generate general financial planning tips using Anthropic Claude API.
+
+    ANTHROPIC_API_KEY must be configured in the environment.
+    If the API is unavailable, safe fallback tips are returned.
     """
+
     api_key = os.getenv("ANTHROPIC_API_KEY")
+
+    # ---------------------------------------------------------
+    # 1. Check API key
+    # ---------------------------------------------------------
     if not api_key:
-        income = float(data.get("monthly_income", 0) or 0)
-        expenses = float(data.get("monthly_expenses", 0) or 0)
-        savings = max(income - expenses, 0)
+        print("Claude API Error: ANTHROPIC_API_KEY is not configured.")
+
         return [
-            f"Estimated monthly surplus from the entered values: ₹{savings:,.0f}.",
-            "Keep an emergency fund and review recurring expenses regularly.",
-            "Treat the eligibility result as an estimate, not a guaranteed lending decision."
+            "AI service is not configured yet.",
+            "Review your income, expenses, existing debt and credit history before borrowing.",
+            "This application provides an educational estimate only."
         ]
 
-    # API integration intentionally kept isolated so the key never appears in frontend code.
+    # ---------------------------------------------------------
+    # 2. Prepare user information
+    # ---------------------------------------------------------
+    try:
+        safe_data = {
+            "monthly_income": data.get("monthly_income", 0),
+            "monthly_expenses": data.get("monthly_expenses", 0),
+            "loan_amount": data.get("loan_amount", 0),
+            "credit_score": data.get("credit_score", 0),
+            "existing_emi": data.get("existing_emi", 0),
+            "employment_type": data.get("employment_type", "Not specified")
+        }
+
+        user_information = json.dumps(safe_data)
+
+    except Exception as e:
+        print("Data preparation error:", repr(e))
+
+        return [
+            "Unable to process the entered financial information.",
+            "Please check your input values and try again.",
+            "This application provides an educational estimate only."
+        ]
+
+    # ---------------------------------------------------------
+    # 3. Anthropic API request
+    # ---------------------------------------------------------
     payload = {
         "model": "claude-sonnet-4-6",
         "max_tokens": 350,
-        "messages": [{
-            "role": "user",
-            "content": (
-                "Give three concise, general financial planning tips based on this "
-                "user-provided information. Do not claim to be a bank and do not "
-                "provide regulated personalized financial advice.\n\n"
-                + json.dumps(data)
-            )
-        }]
+        "messages": [
+            {
+                "role": "user",
+                "content": (
+                    "You are a financial education assistant inside an "
+                    "AI Loan Eligibility Checker web application.\n\n"
+
+                    "Based on the following user-provided information, "
+                    "give exactly 3 concise and practical general financial "
+                    "planning tips.\n\n"
+
+                    "Rules:\n"
+                    "- Keep each tip short and easy to understand.\n"
+                    "- Do not claim to be a bank or lender.\n"
+                    "- Do not guarantee loan approval or rejection.\n"
+                    "- Do not provide regulated personalized financial advice.\n"
+                    "- Do not mention internal AI/API details.\n"
+                    "- Return only the 3 tips, one per line.\n\n"
+
+                    "User information:\n"
+                    + user_information
+                )
+            }
+        ]
     }
 
-    req = urllib.request.Request(
+    request = urllib.request.Request(
         "https://api.anthropic.com/v1/messages",
         data=json.dumps(payload).encode("utf-8"),
         headers={
@@ -45,17 +93,111 @@ def get_financial_tips(data):
         method="POST"
     )
 
+    # ---------------------------------------------------------
+    # 4. Send request
+    # ---------------------------------------------------------
     try:
-        with urllib.request.urlopen(req, timeout=20) as response:
-            result = json.loads(response.read().decode("utf-8"))
-        text = "".join(
-            block.get("text", "") for block in result.get("content", [])
-            if block.get("type") == "text"
-        )
-        return [line.strip("-• ").strip() for line in text.splitlines() if line.strip()][:5]
-    except Exception:
+
+        with urllib.request.urlopen(request, timeout=30) as response:
+
+            response_data = response.read().decode("utf-8")
+
+            result = json.loads(response_data)
+
+        # -----------------------------------------------------
+        # 5. Extract Claude response
+        # -----------------------------------------------------
+        content = result.get("content", [])
+
+        tips = []
+
+        for block in content:
+
+            if block.get("type") == "text":
+
+                text = block.get("text", "").strip()
+
+                if text:
+                    tips.extend(
+                        line.strip("-• ").strip()
+                        for line in text.splitlines()
+                        if line.strip()
+                    )
+
+        # Keep maximum 5 tips
+        tips = tips[:5]
+
+        # -----------------------------------------------------
+        # 6. Check if response contained text
+        # -----------------------------------------------------
+        if not tips:
+
+            print("Claude API Error: API response contained no text.")
+
+            return [
+                "AI generated tips are currently unavailable.",
+                "Review your income, expenses and existing debt before borrowing.",
+                "This application provides an educational estimate only."
+            ]
+
+        print("Claude API: Tips generated successfully.")
+
+        return tips
+
+    # ---------------------------------------------------------
+    # 7. HTTP errors
+    # ---------------------------------------------------------
+    except urllib.error.HTTPError as e:
+
+        try:
+            error_body = e.read().decode("utf-8", errors="replace")
+        except Exception:
+            error_body = "Unable to read error response."
+
+        print("Claude API HTTP Error:", e.code)
+        print("Claude API Response:", error_body)
+
         return [
             "AI service is temporarily unavailable.",
-            "Review your income, expenses, existing debt and credit history before borrowing.",
+            "Please try again after some time.",
+            "This application provides an educational estimate only."
+        ]
+
+    # ---------------------------------------------------------
+    # 8. Network / connection errors
+    # ---------------------------------------------------------
+    except urllib.error.URLError as e:
+
+        print("Claude API URL Error:", repr(e.reason))
+
+        return [
+            "Unable to connect to the AI service.",
+            "Please check the server connection and try again.",
+            "This application provides an educational estimate only."
+        ]
+
+    # ---------------------------------------------------------
+    # 9. Timeout
+    # ---------------------------------------------------------
+    except TimeoutError:
+
+        print("Claude API Error: Request timed out.")
+
+        return [
+            "AI service took too long to respond.",
+            "Please try again.",
+            "This application provides an educational estimate only."
+        ]
+
+    # ---------------------------------------------------------
+    # 10. Any other unexpected error
+    # ---------------------------------------------------------
+    except Exception as e:
+
+        print("Claude API Unexpected Error:", repr(e))
+
+        return [
+            "AI service is temporarily unavailable.",
+            "Please try again after some time.",
             "This application provides an educational estimate only."
         ]
