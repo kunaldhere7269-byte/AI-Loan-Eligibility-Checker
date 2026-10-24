@@ -14,7 +14,7 @@ A capstone-ready **AI-powered BFSI web prototype** with:
 > **Important:** This is an educational prototype. The ML model is trained on synthetic data and does not represent a bank's underwriting policy. The prediction is not a guaranteed loan approval and should not be treated as professional financial advice.
 
 
-Documentation link : https://drive.google.com/drive/folders/1eNxRyj_ovHdG0jkayNhY9ODEXPoHQsTr?usp=sharing
+Documentation link : https://drive.google.com/drive/folders/1eNxRyj_ovHdG0jkayNhY9ODEXPoHQsTr?usp=sharing          
 Demo link : https://ai-loan-eligibility-checker-tbo8.onrender.com/
 
 ## 1. Project structure
